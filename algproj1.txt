@@ -1,0 +1,562 @@
+import random
+import math
+
+def getRandomNum(x):
+    for i in range(30): #generate until hits a good one
+        x = random.randint(10000,30000) #generate p or q
+        if (2 << x - 2) % x == 1: #fermat's theorem
+            print(x,' passes Fermat Theorem\n\n\n')
+            x = x
+            break;
+    return x
+    
+def compute_n(p,q):   
+  n = p * q #calculate n
+  return n
+
+def compute_fn(p,q): 
+  fn = (p-1) * (q-1) #generate fn
+  return fn
+
+def greatestFactor(a, b):
+    if b == 0:
+      return a
+    else:
+      return greatestFactor(b, a%b)
+
+def fastExpo(base, expo, n):
+  if expo == 0:
+    return 1
+  if expo%2 == 0:
+    t = fastExpo (base, expo//2, n)
+    return (t*t)%n
+  else:
+    t = fastExpo(base, expo//2, n)
+    return base *(t ** 2 % n) % n
+
+def extendedEuclidean(e, fn):
+  if e == 0:
+      return (fn, 0, 1)
+  else:
+      d, y, x = extendedEuclidean(fn % e, e)
+      return (d, x - (fn // e) * y, y)
+
+
+
+def getE(fn):
+  e = random.randint(1, fn)
+  while(greatestFactor(e, fn) != 1):
+    e = random.randint(1, fn)
+  return e
+
+def validateE(e, fn):
+  if(greatestFactor(e, fn) != 1):
+    return False
+  else:
+    return True
+
+
+def encryption(message, e, n):
+  newMessage = '' #creats new string -> encrypt message
+  for i in range(len(message)):
+    x = fastExpo(ord(message[i]), e, n)
+    newMessage += str(x) + ' '
+  return newMessage
+
+
+def decryption(message, d, n):
+  newMessage = ''
+  message = message.split()
+  for i in range(len(message)):
+    x = fastExpo(int(message[i]), d, n)
+    newMessage += chr(x)
+  return newMessage
+  
+
+
+def digitalSig_Encryption(signature, d, n):
+  newSignature = '' 
+  for i in range(len(signature)):
+    x = fastExpo(ord(signature[i]), d, n)
+    newSignature += str(x) + ' '
+  return newSignature
+
+def digitalSig_Decryption(signature, e, n):
+  newSignature = ''
+  signature = signature.split() 
+  for i in range(len(signature)):
+    x = fastExpo(int(signature[i]), e, n)
+    newSignature += chr(x)
+  return newSignature
+
+    
+def main():
+  p = 11003
+  q = 14324
+  n = 0
+  fn = 0
+
+
+  p = getRandomNum(p)
+  q = getRandomNum(q)
+  print('P is: ',p)
+  print('Q is: ',q)
+  n = compute_n(p,q)
+  fn = compute_fn(p,q)  
+  print('n is: ',n)
+  print('fn is: ',fn)
+  e = getE(fn)
+  d = extendedEuclidean(e, fn)[1] % fn;
+
+  print('The recommeneded E is: ', e)
+  print('The recommeneded D is: ', d)
+
+  print('Public key: ' + str(n) + ', ' + str(e))
+  print('Private key: ' + str(d))
+  
+  print('Hello! Welcome to the RSA Encryption!\n')
+  print('(1) Encrypt a message')
+  print('(2) Decrypt a message')
+  print('(3) Sign a document')
+  print('(4) Decrypt a signature')
+  print('(0) Exit Program')
+
+  #Default Keys
+  public_key = e
+  private_key = d
+
+
+  while(True):
+
+    action = input('Please select what action you would like to do: ')
+
+    if action == str(1):
+      message = input('Please enter the message you would like to encrypt: ')
+      while(True):
+        public_key = input('Please enter your public key: ')
+        if(validateE(int(public_key), fn) is True):
+          print('Your public key: ' + str(n) + ', ' + str(public_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your encrypted message: ' ,encryption(message, int(public_key), n))
+        
+    elif action == str(2):
+      message = input('Please enter the message you would like to decrypt: ')
+      while(True):
+        private_key = input('Please enter your private key: ')
+        if(extendedEuclidean(int(public_key), fn)[1] % fn == int(private_key)):
+          print('Your private key: ' + str(n) + ', ' + str(private_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your decrypted message: ' ,decryption(message, d, n))
+
+    elif action == str(3):
+      print('Hello! Here is a letter that you should sign!')
+      signature = input('Signature: ')
+      while(True):
+        private_key = input('Please enter your private key: ')
+        if(extendedEuclidean(int(public_key), fn)[1] % fn == int(private_key)):
+          print('Your private key: ' + str(n) + ', ' + str(private_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your encrypted signature: ' ,digitalSig_Encryption(signature, d, n))
+
+    elif action == str(4):
+      signature = input('Please enter your encrypted signature: ')
+      while(True):
+        public_key = input('Please enter your public key: ')
+        if(validateE(int(public_key), fn) is True):
+          print('Your public key: ' + str(n) + ', ' + str(public_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your decrypted signature: ' ,digitalSig_Decryption(signature, e, n))
+    elif action == str(0):
+      #break condition
+      print('Thank You!')
+      break
+    else:
+      #print error message
+      print('INVALID INPUT')
+
+
+main()
+    
+
+
+import random
+import math
+
+def getRandomNum(x):
+    for i in range(30): #generate until hits a good one
+        x = random.randint(10000,30000) #generate p or q
+        if (2 << x - 2) % x == 1: #fermat's theorem
+            print(x,' passes Fermat Theorem\n\n\n')
+            x = x
+            break;
+    return x
+    
+def compute_n(p,q):   
+  n = p * q #calculate n
+  return n
+
+def compute_fn(p,q): 
+  fn = (p-1) * (q-1) #generate fn
+  return fn
+
+def greatestFactor(a, b):
+    if b == 0:
+      return a
+    else:
+      return greatestFactor(b, a%b)
+
+def fastExpo(base, expo, n):
+  if expo == 0:
+    return 1
+  if expo%2 == 0:
+    t = fastExpo (base, expo//2, n)
+    return (t*t)%n
+  else:
+    t = fastExpo(base, expo//2, n)
+    return base *(t ** 2 % n) % n
+
+def extendedEuclidean(e, fn):
+  if e == 0:
+      return (fn, 0, 1)
+  else:
+      d, y, x = extendedEuclidean(fn % e, e)
+      return (d, x - (fn // e) * y, y)
+
+
+
+def getE(fn):
+  e = random.randint(1, fn)
+  while(greatestFactor(e, fn) != 1):
+    e = random.randint(1, fn)
+  return e
+
+def validateE(e, fn):
+  if(greatestFactor(e, fn) != 1):
+    return False
+  else:
+    return True
+
+
+def encryption(message, e, n):
+  newMessage = '' #creats new string -> encrypt message
+  for i in range(len(message)):
+    x = fastExpo(ord(message[i]), e, n)
+    newMessage += str(x) + ' '
+  return newMessage
+
+
+def decryption(message, d, n):
+  newMessage = ''
+  message = message.split()
+  for i in range(len(message)):
+    x = fastExpo(int(message[i]), d, n)
+    newMessage += chr(x)
+  return newMessage
+  
+
+
+def digitalSig_Encryption(signature, d, n):
+  newSignature = '' 
+  for i in range(len(signature)):
+    x = fastExpo(ord(signature[i]), d, n)
+    newSignature += str(x) + ' '
+  return newSignature
+
+def digitalSig_Decryption(signature, e, n):
+  newSignature = ''
+  signature = signature.split() 
+  for i in range(len(signature)):
+    x = fastExpo(int(signature[i]), e, n)
+    newSignature += chr(x)
+  return newSignature
+
+    
+def main():
+  p = 11003
+  q = 14324
+  n = 0
+  fn = 0
+
+
+  p = getRandomNum(p)
+  q = getRandomNum(q)
+  print('P is: ',p)
+  print('Q is: ',q)
+  n = compute_n(p,q)
+  fn = compute_fn(p,q)  
+  print('n is: ',n)
+  print('fn is: ',fn)
+  e = getE(fn)
+  d = extendedEuclidean(e, fn)[1] % fn;
+
+  print('The recommeneded E is: ', e)
+  print('The recommeneded D is: ', d)
+
+  print('Public key: ' + str(n) + ', ' + str(e))
+  print('Private key: ' + str(d))
+  
+  print('Hello! Welcome to the RSA Encryption!\n')
+  print('(1) Encrypt a message')
+  print('(2) Decrypt a message')
+  print('(3) Sign a document')
+  print('(4) Decrypt a signature')
+  print('(0) Exit Program')
+
+  #Default Keys
+  public_key = e
+  private_key = d
+
+
+  while(True):
+
+    action = input('Please select what action you would like to do: ')
+
+    if action == str(1):
+      message = input('Please enter the message you would like to encrypt: ')
+      while(True):
+        public_key = input('Please enter your public key: ')
+        if(validateE(int(public_key), fn) is True):
+          print('Your public key: ' + str(n) + ', ' + str(public_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your encrypted message: ' ,encryption(message, int(public_key), n))
+        
+    elif action == str(2):
+      message = input('Please enter the message you would like to decrypt: ')
+      while(True):
+        private_key = input('Please enter your private key: ')
+        if(extendedEuclidean(int(public_key), fn)[1] % fn == int(private_key)):
+          print('Your private key: ' + str(n) + ', ' + str(private_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your decrypted message: ' ,decryption(message, d, n))
+
+    elif action == str(3):
+      print('Hello! Here is a letter that you should sign!')
+      signature = input('Signature: ')
+      while(True):
+        private_key = input('Please enter your private key: ')
+        if(extendedEuclidean(int(public_key), fn)[1] % fn == int(private_key)):
+          print('Your private key: ' + str(n) + ', ' + str(private_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your encrypted signature: ' ,digitalSig_Encryption(signature, d, n))
+
+    elif action == str(4):
+      signature = input('Please enter your encrypted signature: ')
+      while(True):
+        public_key = input('Please enter your public key: ')
+        if(validateE(int(public_key), fn) is True):
+          print('Your public key: ' + str(n) + ', ' + str(public_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your decrypted signature: ' ,digitalSig_Decryption(signature, e, n))
+    elif action == str(0):
+      #break condition
+      print('Thank You!')
+      break
+    else:
+      #print error message
+      print('INVALID INPUT')
+
+
+main()
+    import random
+import math
+
+def getRandomNum(x):
+    for i in range(30): #generate until hits a good one
+        x = random.randint(10000,30000) #generate p or q
+        if (2 << x - 2) % x == 1: #fermat's theorem
+            print(x,' passes Fermat Theorem\n\n\n')
+            x = x
+            break;
+    return x
+    
+def compute_n(p,q):   
+  n = p * q #calculate n
+  return n
+
+def compute_fn(p,q): 
+  fn = (p-1) * (q-1) #generate fn
+  return fn
+
+def greatestFactor(a, b):
+    if b == 0:
+      return a
+    else:
+      return greatestFactor(b, a%b)
+
+def fastExpo(base, expo, n):
+  if expo == 0:
+    return 1
+  if expo%2 == 0:
+    t = fastExpo (base, expo//2, n)
+    return (t*t)%n
+  else:
+    t = fastExpo(base, expo//2, n)
+    return base *(t ** 2 % n) % n
+
+def extendedEuclidean(e, fn):
+  if e == 0:
+      return (fn, 0, 1)
+  else:
+      d, y, x = extendedEuclidean(fn % e, e)
+      return (d, x - (fn // e) * y, y)
+
+
+
+def getE(fn):
+  e = random.randint(1, fn)
+  while(greatestFactor(e, fn) != 1):
+    e = random.randint(1, fn)
+  return e
+
+def validateE(e, fn):
+  if(greatestFactor(e, fn) != 1):
+    return False
+  else:
+    return True
+
+
+def encryption(message, e, n):
+  newMessage = '' #creats new string -> encrypt message
+  for i in range(len(message)):
+    x = fastExpo(ord(message[i]), e, n)
+    newMessage += str(x) + ' '
+  return newMessage
+
+
+def decryption(message, d, n):
+  newMessage = ''
+  message = message.split()
+  for i in range(len(message)):
+    x = fastExpo(int(message[i]), d, n)
+    newMessage += chr(x)
+  return newMessage
+  
+
+
+def digitalSig_Encryption(signature, d, n):
+  newSignature = '' 
+  for i in range(len(signature)):
+    x = fastExpo(ord(signature[i]), d, n)
+    newSignature += str(x) + ' '
+  return newSignature
+
+def digitalSig_Decryption(signature, e, n):
+  newSignature = ''
+  signature = signature.split() 
+  for i in range(len(signature)):
+    x = fastExpo(int(signature[i]), e, n)
+    newSignature += chr(x)
+  return newSignature
+
+    
+def main():
+  p = 11003
+  q = 14324
+  n = 0
+  fn = 0
+
+
+  p = getRandomNum(p)
+  q = getRandomNum(q)
+  print('P is: ',p)
+  print('Q is: ',q)
+  n = compute_n(p,q)
+  fn = compute_fn(p,q)  
+  print('n is: ',n)
+  print('fn is: ',fn)
+  e = getE(fn)
+  d = extendedEuclidean(e, fn)[1] % fn;
+
+  print('The recommeneded E is: ', e)
+  print('The recommeneded D is: ', d)
+
+  print('Public key: ' + str(n) + ', ' + str(e))
+  print('Private key: ' + str(d))
+  
+  print('Hello! Welcome to the RSA Encryption!\n')
+  print('(1) Encrypt a message')
+  print('(2) Decrypt a message')
+  print('(3) Sign a document')
+  print('(4) Decrypt a signature')
+  print('(0) Exit Program')
+
+  #Default Keys
+  public_key = e
+  private_key = d
+
+
+  while(True):
+
+    action = input('Please select what action you would like to do: ')
+
+    if action == str(1):
+      message = input('Please enter the message you would like to encrypt: ')
+      while(True):
+        public_key = input('Please enter your public key: ')
+        if(validateE(int(public_key), fn) is True):
+          print('Your public key: ' + str(n) + ', ' + str(public_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your encrypted message: ' ,encryption(message, int(public_key), n))
+        
+    elif action == str(2):
+      message = input('Please enter the message you would like to decrypt: ')
+      while(True):
+        private_key = input('Please enter your private key: ')
+        if(extendedEuclidean(int(public_key), fn)[1] % fn == int(private_key)):
+          print('Your private key: ' + str(n) + ', ' + str(private_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your decrypted message: ' ,decryption(message, d, n))
+
+    elif action == str(3):
+      print('Hello! Here is a letter that you should sign!')
+      signature = input('Signature: ')
+      while(True):
+        private_key = input('Please enter your private key: ')
+        if(extendedEuclidean(int(public_key), fn)[1] % fn == int(private_key)):
+          print('Your private key: ' + str(n) + ', ' + str(private_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your encrypted signature: ' ,digitalSig_Encryption(signature, d, n))
+
+    elif action == str(4):
+      signature = input('Please enter your encrypted signature: ')
+      while(True):
+        public_key = input('Please enter your public key: ')
+        if(validateE(int(public_key), fn) is True):
+          print('Your public key: ' + str(n) + ', ' + str(public_key))
+          break
+        else:
+          print('The key you entered is invalid. Please enter another: ')
+      print('Your decrypted signature: ' ,digitalSig_Decryption(signature, e, n))
+    elif action == str(0):
+      #break condition
+      print('Thank You!')
+      break
+    else:
+      #print error message
+      print('INVALID INPUT')
+
+
+main()
+    
